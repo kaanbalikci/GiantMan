@@ -11,8 +11,13 @@ public class PlayerMovement : MonoBehaviour
     private float scaleControl = 1;
     private float speed = 6f;
     private float horiSpeed = 4f;
-    [HideInInspector] public float gemCount;
+    private bool isDeath;
+    private bool isWin;
+    [HideInInspector] public float gemCount = 0;
     [HideInInspector] public float stickmanCount;
+    [HideInInspector] public float totalScore = 0;
+
+    
 
     //1=red 2=green 3=yellow
     private float colorInt = 0;
@@ -31,6 +36,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private TMP_Text stickmanText;
     [SerializeField] private TMP_Text gemCountText;
     [SerializeField] private Camera cam;
+    [SerializeField] private GameObject WinScreen;
+    [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private TMP_Text totalGem2;
+
 
     private void Awake()
     {
@@ -43,28 +52,23 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         GetComponent<SkinnedMeshRenderer>().material = yellowMat;
+        totalScore = PlayerPrefs.GetFloat("TotalScore");
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {       
         Grow();
         LeftRightMovement();
         //Camera Position
         cam.transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, this.transform.position.z - 7.5f);
 
         //Player always running to +z
-        this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, this.transform.position.z + (speed * Time.deltaTime));
+        if(isDeath == false)
+        {
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, this.transform.position.z + (speed * Time.deltaTime));
+        }
 
-      
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            anim.SetBool("isSlide", true);
-        }
-        else
-        {
-            anim.SetBool("isSlide", false);
-        }
 
     }
 
@@ -83,8 +87,11 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.tag == "Gem")
         {
             gemCount += 1;
+            totalScore++;
+            PlayerPrefs.SetFloat("TotalScore", totalScore);
             Destroy(other.gameObject);
             gemCountText.text = "" + gemCount;
+            
         }
 
         //CHANGE COLOR
@@ -124,6 +131,19 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log(colorInt);
         }
 
+        //WIN
+        if(other.gameObject.tag == "Finish")
+        {
+            WinScreen.SetActive(true);
+           
+        }
+
+        //GameOver
+        if(other.gameObject.tag == "Spike")
+        {
+            gameOverUI.SetActive(true);
+            isDeath = true;
+        }
     }
 
 
@@ -256,11 +276,16 @@ public class PlayerMovement : MonoBehaviour
         stickmanText.text = "" + stickmanCount;
     }
 
-    private void ChangeColor()
+    /*private void TotalScore()
     {
+        if(isWin == true)
+        {
 
-    }
-
+            totalScore += gemCount;
+            PlayerPrefs.SetFloat("TotalScore", totalScore);
+            totalGem2.text = "" + totalScore;
+        }
+    }*/
 
 
 }

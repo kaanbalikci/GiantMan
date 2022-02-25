@@ -8,6 +8,7 @@ TagManager:
   - RedBots
   - GreenBots
   - YellowBots
+  - Spike
   layers:
   - Default
   - TransparentFX
